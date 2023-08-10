@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import "./App.css";
 import { useState } from "react";
 import axios from "axios";
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
+import Modal from "@mui/material/Modal";
 
 // reordering an array randomly
 function shuffleArray(array) {
@@ -14,11 +15,36 @@ function shuffleArray(array) {
   return shuffledArray;
 }
 
+const style = {
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  backgroundColor: "rgba(13, 10, 10, 0.57);", // Slightly transparent white background
+  border: "1px solid #eeeeee",
+  boxShadow: "0px 8px 16px rgba(0, 0, 0, 0.2)", // Slightly stronger shadow
+  borderRadius: 10,
+  padding: 20,
+  color: "#444444",
+};
+
 function App() {
   const [images, setImages] = useState([]);
   const [score, setScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
   const [count, setCount] = useState([""]);
+  const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  const handleOpen2 = () => setOpen2(true);
+  const handleClose2 = () => setOpen2(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,6 +77,11 @@ function App() {
 
       setScore(0);
       setCount([""]);
+      // open lose modal
+      handleOpen2();
+    } else if (score === 9) {
+      // open win modal
+      handleOpen();
     } else {
       setCount((prevCount) => ({
         ...prevCount,
@@ -59,7 +90,7 @@ function App() {
       setScore((prevScore) => prevScore + 1);
     }
 
-    console.log(count);
+    console.log(score);
     // saving in a variable the new array order
     const shuffledImages = shuffleArray(images);
     // uploading state
@@ -74,6 +105,41 @@ function App() {
       <h1>Memory game</h1>
       <Typography variant="h4">Score: {score}</Typography>
       <Typography variant="h4">Best Score: {bestScore}</Typography>
+      {/* win modal */}
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description">
+        <Box sx={style}>
+          <Typography
+            sx={{ color: "white" }}
+            id="modal-modal-title"
+            variant="h6"
+            component="h2">
+            YOU WIN
+          </Typography>
+          {/* could add chance to play with another thematic */}
+          {/* and changing params on the fetch */}
+        </Box>
+      </Modal>
+      {/* lose modal */}
+      <Modal
+        open={open2}
+        onClose={handleClose2}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description">
+        <Box sx={style}>
+          <Typography
+            sx={{ color: "white" }}
+            id="modal-modal-title"
+            variant="h6"
+            component="h2">
+            YOU LOSE
+          </Typography>
+          {/* could add a restart button  */}
+        </Box>
+      </Modal>
       {images.map((image) => (
         <Box
           component="img"
