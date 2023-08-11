@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import "./App.css";
 import { useState } from "react";
 import axios from "axios";
@@ -32,10 +32,14 @@ const style = {
   color: "#444444",
 };
 
+const queries = ["dog", "cat", "cactus", "hedgehogs grass", "chainsaw", ""];
+
 function App() {
   const [images, setImages] = useState([]);
   const [score, setScore] = useState(0);
-  const [bestScore, setBestScore] = useState(0);
+  const [bestScore, setBestScore] = useState(
+    parseInt(localStorage.getItem("bestScore")) || 0
+  );
   const [count, setCount] = useState([""]);
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
@@ -46,7 +50,14 @@ function App() {
   const handleOpen2 = () => setOpen2(true);
   const handleClose2 = () => setOpen2(false);
 
+  const bestScoreMemoized = useMemo(() => {
+    return Math.max(bestScore);
+  }, [bestScore]);
+
   useEffect(() => {
+    // randomly pick one of the queries inside queries const
+    const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+
     const fetchData = async () => {
       const { data } = await axios.get(
         "https://api.unsplash.com/search/photos",
@@ -57,10 +68,11 @@ function App() {
           },
           // search key
           params: {
-            query: "DOG",
+            query: randomQuery,
           },
         }
       );
+
       // save images on state
       setImages(data.results);
     };
@@ -73,6 +85,7 @@ function App() {
     if (count[id]) {
       if (score > bestScore) {
         setBestScore(score);
+        localStorage.setItem("bestScore", score);
       }
 
       setScore(0);
@@ -104,7 +117,7 @@ function App() {
     <div>
       <h1>Memory game</h1>
       <Typography variant="h4">Score: {score}</Typography>
-      <Typography variant="h4">Best Score: {bestScore}</Typography>
+      <Typography variant="h4">Best Score: {bestScoreMemoized}</Typography>
       {/* win modal */}
       <Modal
         open={open}
@@ -121,6 +134,7 @@ function App() {
           </Typography>
           {/* could add chance to play with another thematic */}
           {/* and changing params on the fetch */}
+          <Button variant="outlined">Try Again</Button>
         </Box>
       </Modal>
       {/* lose modal */}
@@ -138,6 +152,12 @@ function App() {
             YOU LOSE
           </Typography>
           {/* could add a restart button  */}
+          <Button
+            onClick={() => {
+              window.location.reload();
+            }}>
+            Try Again
+          </Button>
         </Box>
       </Modal>
       {images.map((image) => (
