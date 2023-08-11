@@ -134,7 +134,12 @@ function App() {
           </Typography>
           {/* could add chance to play with another thematic */}
           {/* and changing params on the fetch */}
-          <Button variant="outlined">Try Again</Button>
+          <Button
+            onClick={() => {
+              window.location.reload();
+            }}>
+            Try Again
+          </Button>
         </Box>
       </Modal>
       {/* lose modal */}
