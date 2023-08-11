@@ -59,22 +59,31 @@ function App() {
     const randomQuery = queries[Math.floor(Math.random() * queries.length)];
 
     const fetchData = async () => {
-      const { data } = await axios.get(
-        "https://api.unsplash.com/search/photos",
-        {
-          headers: {
-            Authorization:
-              "Client-ID 5c3Oqk6IPEjEQCoslGF_jKPZyNodVyl8aqbdCTAhepI",
-          },
-          // search key
-          params: {
-            query: randomQuery,
-          },
-        }
-      );
+      try {
+        const { data } = await axios.get(
+          "https://api.unsplash.com/search/photos",
+          {
+            headers: {
+              Authorization:
+                "Client-ID 5c3Oqk6IPEjEQCoslGF_jKPZyNodVyl8aqbdCTAhepI",
+            },
+            // search key
+            params: {
+              query: randomQuery,
+            },
+          }
+        );
 
-      // save images on state
-      setImages(data.results);
+        // save images on state
+        setImages(data.results);
+      } catch (error) {
+        console.error("Error fetching images:", error);
+
+        // set a timeout to refresh the page after 3 seconds if still in loading state
+        setTimeout(() => {
+          window.location.reload();
+        }, 3000);
+      }
     };
 
     // run fetch
@@ -111,7 +120,6 @@ function App() {
   };
 
   // loading text while fetching images
-  if (images.length === 0) return <h1>Loading....</h1>;
 
   return (
     <div>
